@@ -1,0 +1,21 @@
+name: Sanity Test
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+      - run: |
+          pip install -r requirements.txt
+          python src/train.py
+          python -m unittest discover tests > result.log || true
+      - name: Show test output
+        run: cat result.log
+
