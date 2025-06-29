@@ -25,6 +25,35 @@ jobs:
         run: |
           python src/train.py
 
+      - name: Evaluate model and write detailed report
+        run: |
+          ACCURACY=$(python -c "from src.evaluate import evaluate_model; print(evaluate_model())")
+          DATE=$(date "+%Y-%m-%d %H:%M")
+
+          echo "### ✅ Model Evaluation Report" > report.md
+          echo "" >> report.md
+          echo "**🎯 Accuracy**: \`$ACCURACY\`" >> report.md
+          echo "**📊 Dataset**: Iris" >> report.md
+          echo "**🧠 Model**: RandomForestClassifier" >> report.md
+          echo "**🔁 Train/Test Split**: 80/20" >> report.md
+          echo "**📅 Timestamp**: \`$DATE\`" >> report.md
+
+      - name: Install CML
+        run: npm install -g @dvcorg/cml
+
+      - name: Post accuracy report to PR
+        env:
+          REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          cml comment create report.md
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+
+      - name: Train the model
+        run: |
+          python src/train.py
+
       - name: Evaluate model and write result to file
         run: |
           ACCURACY=$(python -c "from src.evaluate import evaluate_model; print(evaluate_model())")
@@ -38,3 +67,4 @@ jobs:
           REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           cml comment create report.md
+
